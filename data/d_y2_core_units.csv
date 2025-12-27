@@ -1,0 +1,6 @@
+unit_code,unit_name,semester_available,description ,prereq,Assignment,Test,Final
+FIT2014,Theory of computation,1;2,"Formal languages, automata, grammars, computability, complexity, P vs NP, and formal proofs.",o;FIT1058;FIT1008,10;20,5;15,50
+FIT2086,Modelling for data analysis,2,"Statistical modelling, data collection, probability distributions, hypothesis testing, regression, Bayesian methods, and model evaluation.",a;FIT1045;FIT1058,10;20;20,NONE,50
+FIT2004,Algorithms and data structures,1;2,"Problem solving, algorithms, complexity analysis, recursion, data structures, hashing, sorting, and graph algorithms.",a;1008;1058,18,22;10,50
+FIT2094,Databases,1,"Database design, data modelling, SQL, data management, integrity, and relational systems.",o;FIT1045;FIT1058;FIT1051;FIT1053,35;35,15;15,NONE
+FIT2179,Data visualisation,1,"Data visualisation, information graphics, interactivity, visual analysis, design, and evaluation.",o;FIT1045;FIT1008,35;25,15;35,NONE

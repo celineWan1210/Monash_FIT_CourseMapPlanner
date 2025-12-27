@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter My Results - Monash Smart Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(5deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(-5deg);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        header h1 {
+            font-size: 2.6em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+            letter-spacing: 0.5px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1.8px solid rgba(255, 255, 255, 0.85);
+            padding: 12px 26px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            transform: translateX(-4px);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px) saturate(150%);
+            -webkit-backdrop-filter: blur(30px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            padding: 36px 28px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-icon {
+            font-size: 3.5em;
+            margin-bottom: 18px;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+
+        .user-section {
+            margin-bottom: 30px;
+        }
+
+        .user-badge {
+            background: rgba(102, 126, 234, 0.15);
+            color: #4b55d4;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 1.8px solid #d0d0d0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 13px 28px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .semester-section {
+            margin-bottom: 30px;
+        }
+
+        .semester-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 22px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .semester-title {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .semester-stats {
+            display: flex;
+            gap: 18px;
+            font-size: 0.9em;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .unit-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unit-card:hover {
+            transform: translateY(-3px);
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+        }
+
+        .unit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        /* Your original status colors remain the same */
+        .unit-card.planned {
+            background: rgba(245, 245, 245, 0.2);
+            /* light grey with transparency */
+            border-color: rgba(158, 158, 158, 0.3);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+        }
+
+        .unit-card.planned::before {
+            background: #9e9e9e;
+        }
+
+        .unit-card.fail {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .unit-card.fail::before {
+            background: #f44336;
+        }
+
+        .unit-card.pass {
+            background: #fff8e1;
+            border-color: #ffc107;
+        }
+
+        .unit-card.pass::before {
+            background: #ffc107;
+        }
+
+        .unit-card.credit {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .unit-card.credit::before {
+            background: #2196f3;
+        }
+
+        .unit-card.distinction {
+            background: #f3e5f5;
+            border-color: #9c27b0;
+        }
+
+        .unit-card.distinction::before {
+            background: #9c27b0;
+        }
+
+        .unit-card.hd {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .unit-card.hd::before {
+            background: #4caf50;
+        }
+
+        .unit-code {
+            font-size: 1.25em;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #222;
+        }
+
+        .unit-name {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .grade-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.1em;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Keep grade colors but balance brightness */
+        .grade-badge.planned {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .grade-badge.F {
+            background: #e53935;
+            color: white;
+        }
+
+        .grade-badge.P {
+            background: #ffca28;
+            color: #333;
+        }
+
+        .grade-badge.C {
+            background: #42a5f5;
+            color: white;
+        }
+
+        .grade-badge.D {
+            background: #ab47bc;
+            color: white;
+        }
+
+        .grade-badge.HD {
+            background: #43a047;
+            color: white;
+        }
+
+        .grade-select {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .grade-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .edit-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 7px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="goBack()">← Back to Main Menu</button>
+
+        <header>
+            <h1>📊 My Academic Results</h1>
+            <p>Track your progress and update your grades</p>
+        </header>
+
+        <div id="userDisplay" class="hidden">
+            <span class="user-badge">👤 Logged in as: <span id="displayUsername"></span></span>
+        </div>
+
+        <div id="resultsSection" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="color: #ffffff;">Your Academic Record</h2>
+                <div>
+                    <button class="btn" onclick="saveAllResults()">💾 Save All Changes</button>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div id="loadingState" class="loading hidden">
+                <div style="display: inline-block; animation: spin 1s linear infinite;">⏳</div>
+                <div>Loading your results...</div>
+            </div>
+
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-state-icon">📭</div>
+                <h3>No Results Found</h3>
+                <p>No semester records found for this user. Start planning your units first!</p>
+            </div>
+
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let currentUsername = '';
+        let allResults = {};
+
+        function goBack() {
+            /* 
+            redirect user back to homepage
+             */
+            window.location.href = '/';
+        }
+
+        function showAlert(message, type = 'info') {
+            /* 
+            Show temporary alert message for 5 seconds
+             */
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertContainer.innerHTML = '', 5000);
+        }
+
+        function getCookie(name) {
+            /* 
+            read cookie value by name
+            return null if cookie does not exists
+            */
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+            return null;
+        }
+
+        async function loadResults() {
+            /* 
+            Read the username cookie and get the result info from backend and call the display result if sucessful
+
+            else return error message
+             */
+            // read username cookie to identify user else show error message and return
+            const username = getCookie('username');
+            if (!username) {
+                showAlert('No username found. Please start planning first.', 'error');
+                return;
+            }
+
+            currentUsername = username;
+
+            /* 
+            Show loading indicator
+            Hide empty state message
+            clear container where result will be displayed
+             */
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('resultsContainer').innerHTML = '';
+
+            try {
+                // get result by send a POST request to API with username
+                // a JSON response will be send over which contain the result
+                const res = await fetch(`${API_URL}/api/get-results`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+
+                const data = await res.json();
+                document.getElementById('loadingState').classList.add('hidden');
+
+                /* 
+                If request sucess store the result in allResults
+                If no result show empty
+                Otherwise call display Result to show sucess alert
+
+                If fail - show error alert
+                 */
+                if (data.success) {
+                    allResults = data.results;
+
+                    if (Object.keys(allResults).length === 0) {
+                        document.getElementById('emptyState').classList.remove('hidden');
+                    } else {
+                        displayResults(allResults);
+                        document.getElementById('resultsSection').classList.remove('hidden');
+                        showAlert(`Welcome back, ${username}! Loaded ${Object.keys(allResults).length} semester(s).`, 'success');
+                    }
+                } else {
+                    showAlert(data.error || 'Failed to load results', 'error');
+                    if (data.error && data.error.includes('not found')) {
+                        document.getElementById('emptyState').classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                document.getElementById('loadingState').classList.add('hidden');
+                showAlert('Error loading results. Make sure the server is running.', 'error');
+                console.error(err);
+            }
+        }
+
+        // Call loadResults automatically when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            loadResults();
+        });
+
+
+        function displayResults(results) {
+            /* 
+            Clear previous result (HTML)
+            Sort semester in chornologically order
+            Show each semester and the unit result option 
+             */
+            // get HTML element for the result we want to display
+            // clear previous content (avoid duplicate)
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            // Sort semesters (Y1S1, Y1S2, Y2S1, etc.)
+            const sortedSemesters = Object.keys(results).sort((a, b) => {
+                const aMatch = a.match(/Y(\d+)S(\d+)/);
+                const bMatch = b.match(/Y(\d+)S(\d+)/);
+                if (aMatch && bMatch) {
+                    const aYear = parseInt(aMatch[1]);
+                    const bYear = parseInt(bMatch[1]);
+                    const aSem = parseInt(aMatch[2]);
+                    const bSem = parseInt(bMatch[2]);
+
+                    if (aYear !== bYear) return aYear - bYear;
+                    return aSem - bSem;
+                }
+                return 0;
+            });
+
+            // loop the sorted semester and create HTML for that semester
+            // this will show the section that show all units and option (result) for that semester
+            sortedSemesters.forEach(semester => {
+                const units = results[semester];
+                const semesterDiv = createSemesterSection(semester, units);
+                container.appendChild(semesterDiv);
+            });
+        }
+
+        function createSemesterSection(semester, units) {
+            /* 
+            Built HTML for a single semester 
+            Such as semester name
+            Current info (total, grade, passed)
+            Cards for each units
+             */
+            const section = document.createElement('div');
+            section.className = 'semester-section';
+
+            // Calculate stats
+            const totalUnits = Object.keys(units).length;
+            const completedUnits = Object.values(units).filter(g => g !== 'planned').length;
+            const passedUnits = Object.values(units).filter(g => ['P', 'C', 'D', 'HD'].includes(g)).length;
+
+            // Format semester name
+            const match = semester.match(/Y(\d+)S(\d+)/);
+            const yearNum = match ? match[1] : '?';
+            const semNum = match ? match[2] : '?';
+            const semesterName = `Year ${yearNum} - Semester ${semNum}`;
+
+            section.innerHTML = `
+                <div class="semester-header">
+                    <div class="semester-title">${semesterName}</div>
+                    <div class="semester-stats">
+                        <div class="stat-item">📚 ${totalUnits} Units</div>
+                        <div class="stat-item">✅ ${completedUnits} Graded</div>
+                        <div class="stat-item">🎯 ${passedUnits} Passed</div>
+                    </div>
+                </div>
+                <div class="units-grid" id="grid-${semester}"></div>
+            `;
+
+            const grid = section.querySelector(`#grid-${semester}`);
+
+            Object.entries(units).forEach(([code, grade]) => {
+                const card = createUnitCard(semester, code, grade);
+                grid.appendChild(card);
+            });
+
+            return section;
+        }
+
+        function createUnitCard(semester, code, grade) {
+            /* 
+            Create a card that show
+            - Unit Code
+            - Grade (Pending at first)
+            - Button to edit grade 
+             */
+            const card = document.createElement('div');
+            const gradeClass = getGradeClass(grade);
+            card.className = `unit-card ${gradeClass}`;
+            card.id = `unit-${semester}-${code}`;
+
+            const isPlanned = grade === 'planned';
+            const gradeBadgeClass = isPlanned ? 'planned' : grade;
+
+            card.innerHTML = `
+                <div class="unit-code">${code}</div>
+
+                <div class="grade-section">
+                    <div class="grade-display">
+                        <span class="grade-badge ${gradeBadgeClass}" id="badge-${semester}-${code}">
+                            ${isPlanned ? 'Pending' : grade}
+                        </span>
+                    </div>
+                    <button class="edit-btn" onclick="editGrade('${semester}', '${code}', '${grade}')">
+                        ✏️ Edit
+                    </button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function getGradeClass(grade) {
+            // Show the grade nicely based on the JSON info
+            if (grade === 'planned') return 'planned';
+            if (grade === 'F') return 'fail';
+            if (grade === 'P') return 'pass';
+            if (grade === 'C') return 'credit';
+            if (grade === 'D') return 'distinction';
+            if (grade === 'HD') return 'hd';
+            return '';
+        }
+
+        function editGrade(semester, code, currentGrade) {
+            /* 
+            Allow user to edit grade and save their result 
+             */
+            const card = document.getElementById(`unit-${semester}-${code}`);
+            const gradeSection = card.querySelector('.grade-section');
+
+            gradeSection.innerHTML = `
+                <select class="grade-select" id="select-${semester}-${code}">
+                    <option value="planned" ${currentGrade === 'planned' ? 'selected' : ''}>Pending</option>
+                    <option value="F" ${currentGrade === 'F' ? 'selected' : ''}>F - Fail</option>
+                    <option value="P" ${currentGrade === 'P' ? 'selected' : ''}>P - Pass</option>
+                    <option value="C" ${currentGrade === 'C' ? 'selected' : ''}>C - Credit</option>
+                    <option value="D" ${currentGrade === 'D' ? 'selected' : ''}>D - Distinction</option>
+                    <option value="HD" ${currentGrade === 'HD' ? 'selected' : ''}>HD - High Distinction</option>
+                </select>
+                <button class="edit-btn" onclick="saveGrade('${semester}', '${code}')">
+                    ✓ Save
+                </button>
+            `;
+        }
+
+        function saveGrade(semester, code) {
+            /*  
+            Provide a slection of grade and allow user to update result into the database 
+            This allow system to check prereq correctly later
+            */
+            const select = document.getElementById(`select-${semester}-${code}`);
+            const newGrade = select.value;
+
+            // Update local data
+            allResults[semester][code] = newGrade;
+
+            // Update UI
+            const card = document.getElementById(`unit-${semester}-${code}`);
+            const gradeClass = getGradeClass(newGrade);
+            card.className = `unit-card ${gradeClass}`;
+
+            const isPlanned = newGrade === 'planned';
+            const gradeBadgeClass = isPlanned ? 'planned' : newGrade;
+
+            card.querySelector('.grade-section').innerHTML = `
+                <div class="grade-display">
+                    <span class="grade-badge ${gradeBadgeClass}">
+                        ${isPlanned ? 'Pending' : newGrade}
+                    </span>
+                </div>
+                <button class="edit-btn" onclick="editGrade('${semester}', '${code}', '${newGrade}')">
+                    ✏️ Edit
+                </button>
+            `;
+
+            showAlert(`Grade updated for ${code}. Don't forget to save!`, 'info');
+        }
+
+        async function saveAllResults() {
+            /* 
+            send the result to server and save permanently to the bankend API (POST requests)
+             */
+            try {
+                const res = await fetch(`${API_URL}/api/save-results`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: currentUsername,
+                        results: allResults
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showAlert('✅ All results saved successfully!', 'success');
+                } else {
+                    showAlert(data.error || 'Failed to save results', 'error');
+                }
+            } catch (err) {
+                showAlert('Error saving results. Please try again.', 'error');
+                console.error(err);
+            }
+        }
+
+        if (!document.getElementById('chatButton')) {
+            const chatBtn = document.createElement('div');
+            chatBtn.className = 'chat-button';
+            chatBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>';
+            chatBtn.style.cssText = 'position:fixed;bottom:30px;right:30px;width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(102,126,234,0.4);z-index:1000';
+            chatBtn.onclick = () => window.open('/chat', 'AI Chat', 'width=400,height=700');
+            document.body.appendChild(chatBtn);
+        }
+    </script>
+</body>
+
+</html>

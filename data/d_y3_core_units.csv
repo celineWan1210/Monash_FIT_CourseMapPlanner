@@ -1,0 +1,4 @@
+unit_code,unit_name,semester_available,description ,prereq,Assignment,Test,Final
+FIT3163,Data science project 1,1;2,"Data science project, research, design, development, evaluation, and documentation.",a;FIT1055;FIT2094;FIT2086;FIT2004;FIT1043,10;15;25;5;5;30;10,NONE,NONE
+FIT3152,Data analytics,1,"Big data, data science, data management, visualization, statistical learning, NLP, and social network analysis.",a;FIT2086;FIT2094,25;20;25,30,NONE
+FIT3164,Data science project 2,1;2,"Data science project, research, design, development, evaluation, and documentation.",FIT3163,10;15;25;5;5;30;10,NONE,NONE

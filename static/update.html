@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Units - Monash Smart Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(5deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(-5deg);
+            }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #667eea;
+            transform: translateX(-5px);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.6s ease;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #f57c00;
+            border-left: 4px solid #ff9800;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .unit-info-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .info-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-header h3 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .info-header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+            font-size: 2em;
+        }
+
+        .user-badge {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .instruction-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .instruction-box h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .instruction-box ul {
+            margin-left: 20px;
+            color: #1565c0;
+        }
+
+        .instruction-box li {
+            margin-bottom: 5px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="goBack()">← Back to Main Menu</button>
+
+        <header>
+            <h1>🔄 Update Unit Information</h1>
+            <p>Keep your unit data current with the latest handbook information</p>
+        </header>
+
+        <div class="card">
+            <div id="alertContainer"></div>
+
+            <div id="userDisplay" class="hidden">
+                <span class="user-badge">👤 Logged in as: <span id="displayUsername"></span></span>
+            </div>
+
+            <div class="instruction-box">
+                <h4>📋 How to Update Units:</h4>
+                <ul>
+                    <li>Enter the intake year (e.g., 2024, 2025)</li>
+                    <li>Enter the unit code you want to update (e.g., FIT2004)</li>
+                    <li>The system will scrape the latest information from Monash Handbook</li>
+                    <li>Updated data will be saved to your core/elective units files</li>
+                </ul>
+            </div>
+
+            <div class="form-group">
+                <label for="intakeYear">Intake Year</label>
+                <input type="number" id="intakeYear" placeholder="e.g., 2024" min="2020" max="2030">
+            </div>
+
+            <div class="form-group">
+                <label for="unitCode">Unit Code</label>
+                <input type="text" id="unitCode" placeholder="e.g., FIT2004">
+            </div>
+
+            <button class="btn" onclick="updateUnit()">🔍 Fetch & Update Unit Info</button>
+
+            <div id="loadingState" class="loading hidden">
+                <div class="spinner">⏳</div>
+                <div>Scraping Monash Handbook...</div>
+            </div>
+
+            <div id="unitInfoDisplay" class="unit-info-display hidden">
+                <div class="info-header">
+                    <h3 id="unitCodeDisplay"></h3>
+                    <p id="unitNameDisplay"></p>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-size: 1.5em;">📅</span>
+                        <div>
+                            <div style="font-size: 0.85em; color: #666; font-weight: 600;">AVAILABLE SEMESTERS</div>
+                            <div id="semestersDisplay" style="font-weight: 700; color: #2196f3; margin-top: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 20px; border-radius: 12px;">
+                    <h4 style="margin-bottom: 15px; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <span>📊</span> Assessment Breakdown
+                    </h4>
+
+                    <div style="display: grid; gap: 12px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 15px; border-radius: 8px;">
+                            <span style="font-weight: 600; color: #555;">📝 Assignments</span>
+                            <span id="assignDisplay" style="font-weight: 700; color: #667eea; font-size: 1.1em;"></span>
+                        </div>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 15px; border-radius: 8px;">
+                            <span style="font-weight: 600; color: #555;">📋 Tests</span>
+                            <span id="testDisplay" style="font-weight: 700; color: #9c27b0; font-size: 1.1em;"></span>
+                        </div>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 15px; border-radius: 8px;">
+                            <span style="font-weight: 600; color: #555;">🎯 Final Exam</span>
+                            <span id="finalDisplay" style="font-weight: 700; color: #4caf50; font-size: 1.1em;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 10px; color: #2e7d32;">
+                    <strong>✅ Success!</strong> Unit information has been updated in your files.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let currentUsername = '';
+
+        function getCookie(name) {
+            /* 
+            get cookie value by name
+            extract the value and decode it if we manage to find the specific cookie of name=
+             */
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+            return null;
+        }
+
+        function goBack() {
+            // back to homepage
+            window.location.href = '/';
+        }
+
+        function showAlert(message, type = 'info') {
+            // display 5 seconds message to alert user
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertContainer.innerHTML = '', 5000);
+        }
+
+        // Load username from cookie on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const username = getCookie('username');
+            if (username) {
+                currentUsername = username;
+                document.getElementById('userDisplay').classList.remove('hidden');
+                document.getElementById('displayUsername').textContent = username;
+            } else {
+                showAlert('⚠️ No username found in session. Please start planning first to set up your account.', 'warning');
+            }
+        });
+
+        async function updateUnit() {
+            /* 
+            get updated information about specific unit from the server
+
+            get user input (intake year and unit code)
+            valide if the input and username exists
+            show loading (takes at least 5 seconds to scrape)
+            send POST request with username intake year and unit code (all info needed to scrape)
+            if sucess show sucess alert else show error
+             */
+            const intakeYear = document.getElementById('intakeYear').value.trim();
+            const unitCode = document.getElementById('unitCode').value.trim().toUpperCase();
+
+            // Validation
+            if (!intakeYear || !unitCode) {
+                showAlert('Please enter both intake year and unit code', 'error');
+                return;
+            }
+
+            if (!currentUsername) {
+                showAlert('No username found. Please complete unit planning first.', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('unitInfoDisplay').classList.add('hidden');
+
+            try {
+                const res = await fetch(`${API_URL}/api/update-unit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: currentUsername,
+                        intake_year: intakeYear,
+                        unit_code: unitCode
+                    })
+                });
+
+                const data = await res.json();
+                document.getElementById('loadingState').classList.add('hidden');
+
+                if (data.success) {
+                    // Display updated unit info
+                    displayUnitInfo(data.unit_info);
+                    showAlert('✅ Unit information updated successfully!', 'success');
+                } else {
+                    showAlert(data.error || 'Failed to update unit', 'error');
+                }
+            } catch (err) {
+                document.getElementById('loadingState').classList.add('hidden');
+                showAlert('Error updating unit. Make sure the server is running.', 'error');
+                console.error(err);
+            }
+        }
+
+        function displayUnitInfo(unitInfo) {
+            /* 
+            Show Detials of unit int the page
+            semester show in july or februrary (words instead of 1;2)
+            prereq show NONE if no that section else show in percentage
+             */
+            document.getElementById('unitCodeDisplay').textContent = unitInfo.code;
+            document.getElementById('unitNameDisplay').textContent = unitInfo.name;
+
+            // Format semesters display (use semesters_list from API)
+            const semDisplay = document.getElementById('semestersDisplay');
+            if (unitInfo.semesters_list && unitInfo.semesters_list.length > 0) {
+                // Display each semester on a new line with bullet
+                semDisplay.innerHTML = unitInfo.semesters_list.map(sem =>
+                    `<div style="margin-top: 3px;">• ${sem}</div>`
+                ).join('');
+            } else {
+                semDisplay.innerHTML = '<span style="opacity: 0.5; font-style: italic;">Not Available</span>';
+            }
+
+            // Format workload with None styling
+            const assignDisplay = document.getElementById('assignDisplay');
+            assignDisplay.innerHTML = unitInfo.assign === 'None' || !unitInfo.assign
+                ? '<span style="opacity: 0.5; font-style: italic;">None</span>'
+                : unitInfo.assign;
+
+            const testDisplay = document.getElementById('testDisplay');
+            testDisplay.innerHTML = unitInfo.test === 'None' || !unitInfo.test
+                ? '<span style="opacity: 0.5; font-style: italic;">None</span>'
+                : unitInfo.test;
+
+            const finalDisplay = document.getElementById('finalDisplay');
+            finalDisplay.innerHTML = unitInfo.final === 'None' || !unitInfo.final
+                ? '<span style="opacity: 0.5; font-style: italic;">None</span>'
+                : unitInfo.final;
+
+            document.getElementById('unitInfoDisplay').classList.remove('hidden');
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('unitCode').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                updateUnit();
+            }
+        });
+
+        document.getElementById('intakeYear').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('unitCode').focus();
+            }
+        });
+
+        if (!document.getElementById('chatButton')) {
+            const chatBtn = document.createElement('div');
+            chatBtn.className = 'chat-button';
+            chatBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>';
+            chatBtn.style.cssText = 'position:fixed;bottom:30px;right:30px;width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(102,126,234,0.4);z-index:1000';
+            chatBtn.onclick = () => window.open('/chat', 'AI Chat', 'width=400,height=700');
+            document.body.appendChild(chatBtn);
+        }
+    </script>
+</body>
+
+</html>

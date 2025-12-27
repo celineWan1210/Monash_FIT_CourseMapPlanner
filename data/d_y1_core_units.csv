@@ -1,0 +1,7 @@
+unit_code,unit_name,semester_available,description ,prereq,Assignment,Test,Final,prohibition,Corequisite
+FIT1045,Introduction to programming,1;2,"Programming basics, control structures, data types, modularity, libraries, good practices",NONE,100,0,NONE ,FIT1053,NONE
+FIT1047,"Introduction to computer systems, networks and security",1;2,"Computer systems, networks, security basics, architecture, operating systems, countermeasures.",NONE,15;25;30;30,NONE,NONE ,NONE,NONE
+FIT1058,Foundations of computing,1;2,"Abstract models, relations, trees, graphs, logical reasoning, proof, analysis, probability.",NONE,10;25,10;15,40,NONE,FIT1045;FIT1053
+FIT1008,Fundamentals of algorithms,1;2,"Algorithms, data types, data structures, recursion, complexity, problem-solving, analysis.",a;FIT1045; FIT1058,15;20;7.5 ,20;15;7.5;15,NONE ,NONE,NONE
+FIT1055,IT professional practice and ethics,1;2,"Professional communication, teamwork, ethics, research skills, critical thinking, AI and emerging technology issues.",12,20;20;25;15,NONE,20,NONE,NONE
+FIT1043,Introduction to data science and artificial intelligence,1;2,"Data lifecycle, business processes, data collection & cleaning, management, analysis, tools & ethics",NONE,20;20,10,50,FIT1059,NONE

@@ -1,0 +1,23 @@
+unit_code,unit_name,semester_available,description ,prereq,Assignment,Test,Final,Approved
+FIT1043 ,Introduction to data science and artificial intelligence,1;2,"Data lifecycle, business processes, data collection & cleaning, management, analysis, tools & ethics",NONE,20;20,10,50,NONE
+FIT1051 ,Programming fundamentals in java,1,"Programming fundamentals, SDLC, APIs, control structures, methods & modularity, classes & inheritance, multi-class applications",NONE,NONE,10;12;15;25;38,NONE,NONE
+FIT1056,Introduction to software engineering,2,"Software engineering fundamentals, SDLC, methodologies (Waterfall, Agile, Scrum), programming intro, team collaboration, ethics, human-centric design",NONE,20;30;50,NONE,NONE,NONE
+FIT2081,Mobile application development,1,"Object-oriented programming, mobile app development, language syntax, design, coding, and implementation.",o;FIT1045;FIT1051;FIT1008,10;30;30,30,NONE,NONE
+FIT2101,Software engineering process and management,2,"Software process management, teamwork, project organisation, risk management, ethics, and process evaluation.",o;FIT1045;FIT1058;FIT1051;FIT1053,15;10;15;20;15,25,NONE,NONE
+FIT2093,Cybersecurity tools and techniques,1,"Cryptography, authentication, access control, system security, vulnerabilities, threat protection, and cybersecurity trends.",NONE,20;10;30,40,NONE,NONE
+FIT2102,Programming paradigms,2,"Programming paradigms, language design, type systems, functional and declarative programming, polymorphism, evaluation models, and modern language applications.",FIT1008,30;30;20,20,NONE,NONE
+FIT2099,Object oriented design and implementation,1;2,"Object-oriented design, principles, implementation, modelling, and software quality.",o;FIT1045;FIT1058;FIT1051;FIT1053;FIT1008,20;5;25;25,NONE,NONE,NONE
+FIT2107,Software quality and testing,2,"Software quality assurance, testing techniques, automation, code review, reliability, and quality analysis.",o;FIT1045;FIT1058;FIT1051;FIT1053,100,0,NONE,NONE
+FIT2100,Operating systems,2,"Operating system structure, C programming, process management, scheduling, memory, synchronization, and file systems.",FIT1047,30;20,50,NONE,NONE
+FIT2086,Modelling for data analysis,2,"Statistical modelling, data collection, probability distributions, hypothesis testing, regression, Bayesian methods, and model evaluation.",a;FIT1045;FIT1058,10;20;20,NONE,50,NONE
+FIT3003,Business intelligence and data warehousing,2,"Data warehousing, OLAP, data integration, storage, processing, and analytical system design.",FIT2094,NONE,10;40;10,40,D
+FIT3181,Deep learning,2,"Deep learning, neural networks, computer vision, NLP, transformers, generative AI, and practical applications.",FIT2086,25;20,10;10,35,D
+FIT3182,Big data management and processing,1,"Data engineering, big data, parallel processing, NoSQL, unstructured data, and data streaming.",a;FIT2094;FIT2004,10;30;20,40,NONE,D;A
+FIT3183,Malicious AI & dark side security ,2,"AI security, cyber threats, defensive strategies, deepfakes, forensics, and adversarial technologies.",a;FIT1047;FIT2004,2;8;20;10,NONE,60,D
+FIT3077,Software engineering: architecture & design,1,"Software architecture, design principles, best practices, modelling, and application contexts.",FIT2099,20;30;40;10,NONE,NONE,NONE
+FIT3080,Artificial intelligence,2,"Artificial intelligence, search, knowledge representation, reasoning, machine learning, planning, and ethics.",FIT2004,25;15;25,NONE,35,A
+FIT3134,Entrepreneurship,2,"Technopreneurship, innovation, startups, business models, market strategy, and venture development.",72,20;20;50;10,NONE,NONE,NONE
+FIT3143,Parallel computing,2,"Parallel computing, concurrency, multithreading, distributed systems, algorithms, and programming paradigms.",FIT2004,30;20,50,NONE,NONE
+FIT3154,Advanced data analysis,2,"Machine learning, statistical models, regression, classification, clustering, neural networks, and model evaluation.",FIT2086,20;20,NONE,60,NONE
+FIT3159,Computer architecture ,1,"Computer architecture, logic design, memory systems, instruction processing, and processor architectures.",o;FIT1047;FIT1008,30;20,50,NONE,A
+FIT3155,Advanced data structures and algorithms,1;2 ,"Advanced algorithms, data structures, problem solving, analysis, optimization, and algorithmic paradigms.",FIT2004,20;20,NONE,60,NONE

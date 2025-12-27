@@ -1,0 +1,7 @@
+unit_code,unit_name,semester_available,description ,prereq,Assignment,Test,Final
+FIT2014,Theory of computation,1;2,"Formal languages, automata, grammars, computability, complexity, P vs NP, and formal proofs.",o;FIT1058;FIT1008,10;20,5;15,50
+FIT2102,Programming paradigms,2,"Programming paradigms, language design, type systems, functional and declarative programming, polymorphism, evaluation models, and modern language applications.",a;FIT1008,30;30;20,20,NONE
+FIT2109,Computer science workshop,2,"Command-line, version control, debugging, virtual machines, data wrangling, metaprogramming, and practical computing skills.",a;FIT1008;FIT1047,100,0,NONE
+FIT2004,Algorithms and data structures,1;2,"Problem solving, algorithms, complexity analysis, recursion, data structures, hashing, sorting, and graph algorithms.",a;1008;1058,18,22;10,50
+FIT2099,Object oriented design and implementation,1;2,"Object-oriented design, principles, implementation, modelling, and software quality.",o;FIT1045;FIT1058;FIT1051;FIT1053;FIT1008,20;5;25;25,NONE,NONE
+FIT2094,Databases,1,"Database design, data modelling, SQL, data management, integrity, and relational systems.",o;FIT1045;FIT1058;FIT1051;FIT1053,35;35,15;15,NONE

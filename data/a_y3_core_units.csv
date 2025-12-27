@@ -1,0 +1,5 @@
+unit_code,unit_name,semester_available,description ,prereq,Assignment,Test,Final
+FIT3161,Computer science project 1,1;2,"Computer science project, research, design, development, testing, and documentation.",a;FIT1055;FIT2094;FIT2086;FIT2004;FIT2099,10;15;25;5;5;30;10,NONE,NONE
+FIT3143,Parallel computing,2,"Parallel computing, concurrency, multithreading, distributed systems, algorithms, and programming paradigms.",FIT2004,30;20,50,NONE
+FIT3162,Computer science project 2,1;2,"Computer science project, research, design, development, testing, and documentation.",a;FIT1055;FIT2094;FIT2086;FIT2004;FIT2099,10;15;25;5;5;30;10,NONE,NONE
+FIT3155,Advanced data structures and algorithms,1;2 ,"Advanced algorithms, data structures, problem solving, analysis, optimization, and algorithmic paradigms.",FIT2004,20;20,NONE,60

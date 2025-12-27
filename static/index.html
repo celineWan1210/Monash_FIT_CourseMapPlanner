@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monash FIT Smart Unit Planner </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(5deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(-5deg);
+            }
+        }
+
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .unit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .unit-toggle-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 0.75em;
+            cursor: pointer;
+        }
+
+        .unit-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .unit-card:hover:not(.unavailable) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .unit-card.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .unit-card.unavailable {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .unit-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .unit-code {
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+        }
+
+        .unit-name {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .unit-description {
+            font-size: 0.85em;
+            line-height: 1.4;
+            opacity: 0.7;
+        }
+
+        .menu-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #f57c00;
+            border-left: 4px solid #f57c00;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .current-plan {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .plan-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            margin-bottom: 20px;
+            width: auto;
+            padding: 10px 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .level-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .level-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        css.unit-card.prereq-not-met {
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%) !important;
+            border: 2px solid #c62828 !important;
+            color: #c62828;
+        }
+
+        .unit-card.prereq-not-met .unit-code {
+            color: #c62828;
+        }
+
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="goBackMain()">← Back to Main Menu</button>
+        <header>
+            <h1>🎓 Monash FIT Smart Unit Planner</h1>
+            <p>Take control of your Monash CS pathway — from first line of code to graduation.</p>
+        </header>
+
+        <div id="userInfoSection" class="card">
+            <h2 style="margin-bottom: 25px; color: #667eea;">Welcome! Let's Get Started</h2>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+
+            <div class="form-group">
+                <label for="intake">Intake Semester</label>
+                <select id="intake">
+                    <option value="">Select intake...</option>
+                    <option value="1">February Semester</option>
+                    <option value="2">July Semester</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="stream">Current Stream</label>
+                <select id="stream">
+                    <option value="">Select stream...</option>
+                    <option value="1">Data Science</option>
+                    <option value="2">Algorithms and Software</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="year">Year to Plan</label>
+                <select id="year">
+                    <option value="">Select year...</option>
+                    <option value="1">Year 1</option>
+                    <option value="2">Year 2</option>
+                    <option value="3">Year 3</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="semester">Semester to Plan</label>
+                <select id="semester">
+                    <option value="">Select semester...</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="startPlanning()">Start Planning</button>
+        </div>
+
+        <div id="planningSection" class="card hidden">
+            <button class="btn back-btn" onclick="goBack()">← Back</button>
+
+            <div id="alertContainer"></div>
+
+            <div id="semesterReminder" class="alert alert-info" style="display: none;">
+                <strong>📅 Semester Reminder:</strong> <span id="semesterReminderText"></span>
+            </div>
+
+            <h2 style="color: #667eea; margin-bottom: 20px;">Plan Your Units</h2>
+
+            <div class="menu-options">
+                <button class="menu-btn" onclick="showCoreUnits()">📚 View Core Units</button>
+                <button class="menu-btn" onclick="showElectives()">✨ Choose Electives</button>
+                <button class="menu-btn" onclick="showRecommendationModal()">🎯 Get Recommendations</button>
+                <button class="menu-btn" onclick="viewCurrentPlan()">📋 View Plan</button>
+                <button class="menu-btn" onclick="savePlan()">💾 Save Plan</button>
+            </div>
+
+            <div id="coreUnitsDisplay" class="hidden">
+                <h3 style="margin-top: 30px;">Core Units</h3>
+                <div id="coreUnitsGrid" class="unit-grid"></div>
+            </div>
+
+            <div id="electivesDisplay" class="hidden">
+                <h3 style="margin-top: 30px;">Available Electives</h3>
+                <div class="level-selector">
+                    <button class="level-btn" onclick="filterElectivesByLevel(1)">Level 1</button>
+                    <button class="level-btn" onclick="filterElectivesByLevel(2)">Level 2</button>
+                    <button class="level-btn" onclick="filterElectivesByLevel(3)">Level 3</button>
+                    <button class="level-btn active" onclick="filterElectivesByLevel(0)">All</button>
+                </div>
+                <p id="electiveCounter"></p>
+                <div id="electivesGrid" class="unit-grid"></div>
+            </div>
+
+            <div id="currentPlanDisplay" class="current-plan hidden">
+                <h3>Your Current Plan</h3>
+                <div id="planList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="recommendModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h2 style="margin-bottom: 20px;">Get Smart Recommendations</h2>
+            <div class="form-group">
+                <label>Level</label>
+                <select id="recommendLevel">
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Your Interest/Goals</label>
+                <input type="text" id="userInterest" placeholder="e.g., machine learning, web development">
+            </div>
+            <button class="btn" onclick="getRecommendations()">Get Recommendations</button>
+            <button class="btn back-btn" onclick="closeModal()">Cancel</button>
+            <div id="recommendResults"></div>
+        </div>
+    </div>
+
+    <div id="unitModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeUnitModal()">&times;</button>
+            <h2 id="modalUnitCode"></h2>
+            <h3 id="modalUnitName"></h3>
+            <p id="modalUnitDesc"></p>
+            <p><strong>Semesters:</strong> <span id="modalUnitSem"></span></p>
+            <p><strong>Prerequisites:</strong> <span id="modalUnitPrereq"></span></p>
+            <p><strong>Assignments:</strong> <span id="modalUnitAssign"></span></p>
+            <p><strong>Tests:</strong> <span id="modalUnitTest"></span></p>
+            <p><strong>Final:</strong> <span id="modalUnitFinal"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let userData = {};
+        let coreUnits = [];
+        let allElectives = [];
+        let selectedElectives = [];
+        let electiveSpace = 0;
+        let selectedCores = [];
+        let deferredCores = [];
+        let maxCoreUnits = 0;
+        let currentLevel = 0;
+
+        function goBackMain() {
+            window.location.href = window.location.origin + '/';
+        }
+
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+            return '';
+        }
+
+        // Auto-fill user info when the page loads
+        function autoFillPlannerFromCookies() {
+            const username = getCookie('username');
+            const intake = getCookie('intake');
+            const stream = getCookie('stream');
+            const year = getCookie('year');
+            const semester = getCookie('semester');
+
+            if (username) document.getElementById('username').value = username;
+            if (intake) document.getElementById('intake').value = intake;
+            if (stream) document.getElementById('stream').value = stream;
+            if (year) document.getElementById('year').value = year;
+            if (semester) document.getElementById('semester').value = semester;
+
+            if (username || intake || stream || year || semester) {
+                console.log('✅ User info restored from previous session');
+            }
+        }
+
+        async function startPlanning() {
+            /*
+            Handles user input validation and initializes planning by sending data to backend.
+            On success, switches to the planning section and loads electives.
+            */
+
+            const username = document.getElementById('username').value.trim();
+            const intake = document.getElementById('intake').value.trim();
+            const stream = document.getElementById('stream').value.trim();
+            const year = document.getElementById('year').value.trim();
+            const semester = document.getElementById('semester').value.trim();
+
+            if (!username || !intake || !stream || !year || !semester) {
+                showAlert('Please fill in all fields', 'warning');
+                return;
+            }
+
+            userData = { username, intake, stream, year, semester };
+
+            try {
+                const res = await fetch(`${API_URL}/api/start-planning`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    showAlert(data.error || 'Failed to start planning', 'error');
+                    return;
+                }
+
+                // Save all fields in cookies (valid for 30 days)
+                const maxAge = 30 * 24 * 60 * 60;
+                document.cookie = `username=${encodeURIComponent(username)}; path=/; max-age=${maxAge}`;
+                document.cookie = `intake=${encodeURIComponent(intake)}; path=/; max-age=${maxAge}`;
+                document.cookie = `stream=${encodeURIComponent(stream)}; path=/; max-age=${maxAge}`;
+                document.cookie = `year=${encodeURIComponent(year)}; path=/; max-age=${maxAge}`;
+                document.cookie = `semester=${encodeURIComponent(semester)}; path=/; max-age=${maxAge}`;
+
+                // Switch to planning section
+                document.getElementById('userInfoSection').classList.add('hidden');
+                document.getElementById('planningSection').classList.remove('hidden');
+
+                // Show semester info
+                if (data.semester_name) {
+                    const reminderDiv = document.getElementById('semesterReminder');
+                    const reminderText = document.getElementById('semesterReminderText');
+                    reminderText.textContent = `You are planning for the ${data.semester_name} (Year ${year}, Semester ${semester})`;
+                    reminderDiv.style.display = 'block';
+                }
+
+                // Show warnings if any
+                if (data.deferred_cores && data.deferred_cores.length > 0) {
+                    const deferredList = data.deferred_cores.map(d => `${d.code} (from ${d.from_semester})`).join(', ');
+                    showAlert(`⚠️ Warning: You have swapped core units: ${deferredList}`, 'warning');
+                }
+
+                showAlert(`Welcome, ${username}! Planning started successfully.`, 'success');
+
+                coreUnits = data.core_units;
+                maxCoreUnits = coreUnits.length;
+                selectedCores = coreUnits.map(u => u.code);
+
+                await loadElectives(userData);
+
+            } catch (err) {
+                showAlert('Error starting planning.', 'error');
+                console.error(err);
+            }
+        }
+
+        function goBack() {
+            document.getElementById('planningSection').classList.add('hidden');
+            document.getElementById('userInfoSection').classList.remove('hidden');
+        }
+
+        function closeUnitModal() {
+            document.getElementById('unitModal').classList.remove('show');
+        }
+
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('unitModal');
+            if (event.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertContainer.innerHTML = '', 5001);
+        }
+
+
+        async function loadElectives(userData) {
+            /**
+             * async -> use await to call 
+             * Fetches and loads the list of available elective units for the user
+             * 
+             * This will send of POST reqeust to Flask backend to retrieve all available elective 
+             * It will store the fetch elective and elective spaces for further use of planning 
+             * 
+             * If failed, alert will show
+             */
+            try {
+                // send a request to backend API - /api/get-electives
+                const res = await fetch(`${API_URL}/api/get-electives`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                //wait for the Javascript object 
+                const data = await res.json();
+                /* 
+                if sucess it will return the elective require data
+                - allElective -> a list of elective
+                - elective Space -> how many default elective space (according to the default core unit) 
+                - selected elective -> reset to empty list*/
+                if (data.success) {
+                    allElectives = data.electives;
+                    electiveSpace = data.elective_space;
+                    selectedElectives = [];
+                } else showAlert(data.error || 'Failed to load electives.', 'error');
+            } catch {
+                showAlert('Failed to load electives.', 'error');
+            }
+        }
+
+        async function toggleDeferredCore(unitCode) {
+            /* 
+             */
+            // So when user select a unit code this line will check if this unit code is in the selectedCore list
+            /*
+            IF NOT -> this means that this unit code is a swapped core (come from somewhere else) and user want to add into current core list
+            IF YES -> this means user is currently taking that unit and they want to swap
+             */
+            const isSelected = selectedCores.includes(unitCode);
+
+            //If unit is already selected (move it to swap)
+            if (isSelected) {
+                //move to deferred
+                selectedCores = selectedCores.filter(c => c !== unitCode);
+
+                //Add unit to defferedCore and save the information as well
+                if (!deferredCores.some(d => d.code === unitCode)) {
+                    let unitObj = coreUnits.find(u => u.code === unitCode);
+                    if (!unitObj) {
+                        unitObj = await getUnitDetails(unitCode);
+                    }
+                    deferredCores.push({
+                        code: unitObj.code,
+                        name: unitObj.name,
+                        from_semester: unitObj.from_semester || 'Previous',
+                        prereq_fulfilled: unitObj.prereq_fulfilled
+                    });
+                }
+            } else {
+                //Then if user want to add to current semester core unit list
+                //check the sem and prereq before  letting this happen
+                const availability = await canTakeDeferredUnit(unitCode);
+
+                //output message telling user why they cannot add this
+                if (!availability.canTake) {
+                    // Show specific error message
+                    let message = `Cannot add ${unitCode}: `;
+                    if (!availability.available_this_sem) {
+                        message += 'Not available this semester';
+                    } else if (!availability.prereq_fulfilled) {
+                        message += 'Prerequisites not met';
+                    } else {
+                        message += availability.reason || 'Cannot be taken';
+                    }
+                    showAlert(message, 'warning');
+                    return; // Don't add the unit
+                }
+
+                // If checks pass, add to selected
+                selectedCores.push(unitCode);
+                deferredCores = deferredCores.filter(d => d.code !== unitCode);
+
+                /* 
+                This will ensure coreUnits included this sucessfully swap unit
+                If unit is not part of the CoreUnit , fetch the details */
+                if (!coreUnits.some(u => u.code === unitCode)) {
+                    const unitObj = await getUnitDetails(unitCode);
+                    unitObj.prereq_fulfilled = availability.prereq_fulfilled;
+                    unitObj.available_this_sem = availability.available_this_sem;
+                    coreUnits.push(unitObj);
+                }
+            }
+
+            //ensure elective space is updated as well
+            electiveSpace = 4 - selectedCores.length;
+            //update both the UI to show correct info
+            showCoreUnits();
+            viewCurrentPlan();
+        }
+
+
+        function showCoreUnits() {
+            /* 
+            This is all the UI to display the core unit page nicely and correctly 
+            If swap unit havent been add anywhere, show alert message
+            If unit cannot be swap at that year and sem show alert message 
+            If all sucessful, show all core units nicely 
+            Every core unit card as a include and swap button, if user want to swap or include the 
+            toggleDefferedCore will be called
+             */
+            // show the core units section and hide others
+            document.getElementById('coreUnitsDisplay').classList.remove('hidden');
+            document.getElementById('electivesDisplay').classList.add('hidden');
+            document.getElementById('currentPlanDisplay').classList.add('hidden');
+
+            //Then this will clear the unit cards so it show new info 
+            const grid = document.getElementById('coreUnitsGrid');
+            grid.innerHTML = '';
+
+            // --- Show previously deferred cores that are still deferred ---
+            const stillDeferred = deferredCores.filter(d => !selectedCores.includes(d.code));
+            if (stillDeferred.length > 0) {
+                const deferredSection = document.createElement('div');
+                deferredSection.style.cssText = 'background: #fff3e0; border: 2px solid #f57c00; border-radius: 10px; padding: 20px; margin-bottom: 30px;';
+                deferredSection.innerHTML = `
+                    <h3 style="color: #f57c00; margin-bottom: 15px;">⚠️ Previously Swapped Core Units</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Click a unit to check if you can add it back to your current plan.</p>
+                `;
+
+                const deferredGrid = document.createElement('div');
+                deferredGrid.classList.add('unit-grid');
+                deferredGrid.style.marginTop = '15px';
+
+                stillDeferred.forEach(d => {
+                    const card = document.createElement('div');
+                    card.classList.add('unit-card');
+                    card.style.background = 'linear-gradient(135deg, #fff9c4 0%, #fff59d 100%)';
+                    card.style.border = '2px solid #f57c00';
+
+                    card.innerHTML = `
+                        <div class="unit-badge badge-warning" style="background: #f57c00; color: white;">From ${d.from_semester}</div>
+                        <div class="unit-code">${d.code}</div>
+                        <div style="margin-top: 10px; font-size: 0.85em;">⏸️ Click to validate & add</div>
+                    `;
+                    // this will let user try to add it back
+                    card.onclick = () => toggleDeferredCore(d.code);
+                    deferredGrid.appendChild(card);
+                });
+
+                deferredSection.appendChild(deferredGrid);
+                grid.appendChild(deferredSection);
+            }
+
+            // --- Show all normal cores plus deferred units that were added back ---
+            const allCoresToDisplay = [...coreUnits];
+
+            deferredCores
+                .filter(d => selectedCores.includes(d.code))
+                .forEach(d => {
+                    if (!allCoresToDisplay.some(u => u.code === d.code)) {
+                        allCoresToDisplay.push({
+                            code: d.code,
+                            name: d.name || d.code,
+                            prereq_fulfilled: d.prereq_fulfilled !== false
+                        });
+                    }
+                });
+
+            const currentGrid = document.createElement('div');
+            currentGrid.classList.add('unit-grid');
+
+            allCoresToDisplay.forEach(u => {
+                const card = document.createElement('div');
+                card.classList.add('unit-card');
+
+                const isSelected = selectedCores.includes(u.code);
+                const prereqFulfilled = u.prereq_fulfilled !== false;
+
+                if (isSelected) card.classList.add('selected');
+                if (!prereqFulfilled && isSelected) card.classList.add('prereq-not-met');
+
+                card.innerHTML = `
+                    <div class="unit-code">${u.code}</div>
+                    <div class="unit-name">${u.name}</div>
+                    ${!prereqFulfilled && isSelected ? '<div style="color: #d32f2f; font-size: 0.85em; margin-top: 5px;">⚠️ Prerequisites not met</div>' : ''}
+                    <div style="margin-top: 10px; font-size: 0.85em; opacity: 0.7;">
+                        ${isSelected ? 'Click to swap' : 'Click to include'}
+                    </div>
+                `;
+
+                // this button allow user to choose to include or swap the core
+                card.onclick = () => showCoreUnitInfo(u.code);
+
+                const toggleBtn = document.createElement('button');
+                toggleBtn.textContent = isSelected ? 'Swap' : 'Include';
+                toggleBtn.classList.add('unit-toggle-btn');
+                toggleBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleDeferredCore(u.code);
+                };
+
+                // and lastly it will show the active core, swapped and buttons 
+                card.appendChild(toggleBtn);
+                currentGrid.appendChild(card);
+            });
+
+            grid.appendChild(currentGrid);
+        }
+
+        async function canTakeDeferredUnit(unitCode) {
+            /* 
+            This will send user data to the backend and backend will validate if user prereq and sem is correct
+            Send object containing info 
+            CanTake: True if both prereq and sem is True else False
+            available_this_sem: true if available in that sem user are planning
+            prereq_fulfilled: true if user had completed the prereq
+            reason: reason user does not fulfilled it 
+             */
+            /* 
+            call backend, POST to send user to the request
+            send detail such as username, unitcode, year, sem, intake and stream
+             */
+            try {
+                const res = await fetch(`${API_URL}/api/check-unit-availability`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: userData.username,
+                        unit_code: unitCode,
+                        year: userData.year,
+                        semester: userData.semester,
+                        intake: userData.intake,
+                        stream: userData.stream
+                    })
+                });
+
+                // convert into JavaScript object
+                const data = await res.json();
+
+                // if backend send that data is sucess this means take unit can be taken as it is availble and prereq is fulfilled
+                if (data.success) {
+                    return {
+                        canTake: data.available_this_sem && data.prereq_fulfilled,
+                        available_this_sem: data.available_this_sem,
+                        prereq_fulfilled: data.prereq_fulfilled,
+                        reason: data.reason
+                    };
+                }
+                // error message
+                return { canTake: false, reason: 'Failed to check availability' };
+            } catch (err) {
+                console.error('Error checking unit availability:', err);
+                return { canTake: false, reason: 'Error checking availability' };
+            }
+        }
+
+        async function showCoreUnitInfo(unitCode) {
+            /**
+             * Display detail information for selected core unit in a modal 
+             * 
+             * This will send of POST reqeust to Flask backend with current suername and selected unit code
+             * A modal window will show detailed inforamtion about the unit (name, description, semester offered, prerequisite and workload)
+             */
+            try {
+                const res = await fetch(`${API_URL}/api/core-unit-info`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: userData.username,
+                        unit_code: unitCode
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    const unit = data.unit;
+                    document.getElementById('modalUnitCode').innerText = unit.code;
+                    document.getElementById('modalUnitName').innerText = unit.name;
+                    document.getElementById('modalUnitDesc').innerText = unit.description;
+                    document.getElementById('modalUnitSem').innerText = unit.semesters.join(', ');
+                    document.getElementById('modalUnitPrereq').innerText = unit.prerequisites || 'None';
+                    document.getElementById('modalUnitAssign').innerText = unit.assign || 'N/A';
+                    document.getElementById('modalUnitTest').innerText = unit.test || 'N/A';
+                    document.getElementById('modalUnitFinal').innerText = unit.final || 'N/A';
+                    document.getElementById('unitModal').classList.add('show');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (err) {
+                showAlert('Failed to fetch unit info.', 'error');
+                console.error(err);
+            }
+        }
+
+        async function showElectiveInfo(unitCode) {
+            /**
+             * Display detailed information for selected elective unit in a modal
+             * Similar to showCoreUnitInfo but for elective units
+             */
+            try {
+                const res = await fetch(`${API_URL}/api/elective-unit-info`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: userData.username,
+                        unit_code: unitCode
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    const unit = data.unit;
+                    document.getElementById('modalUnitCode').innerText = unit.code;
+                    document.getElementById('modalUnitName').innerText = unit.name;
+                    document.getElementById('modalUnitDesc').innerText = unit.description;
+                    document.getElementById('modalUnitSem').innerText = unit.semesters.join(', ');
+                    document.getElementById('modalUnitPrereq').innerText = unit.prerequisites || 'None';
+                    document.getElementById('modalUnitAssign').innerText = unit.assign || 'N/A';
+                    document.getElementById('modalUnitTest').innerText = unit.test || 'N/A';
+                    document.getElementById('modalUnitFinal').innerText = unit.final || 'N/A';
+                    document.getElementById('unitModal').classList.add('show');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (err) {
+                showAlert('Failed to fetch elective info.', 'error');
+                console.error(err);
+            }
+        }
+
+        function showElectives() {
+            /**
+             * Displays the elective units section in the planning interface
+             * 
+             * This funciton will hide the core unit display and current plan section then shwo the elective section
+             */
+            document.getElementById('coreUnitsDisplay').classList.add('hidden');
+            document.getElementById('electivesDisplay').classList.remove('hidden');
+            document.getElementById('currentPlanDisplay').classList.add('hidden');
+            currentLevel = 0;
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.level-btn').forEach(btn => {
+                if (btn.textContent.includes('All')) btn.classList.add('active');
+            });
+            displayElectives(allElectives);
+        }
+
+        function displayElectives(electives) {
+            const grid = document.getElementById('electivesGrid');
+            grid.innerHTML = '';
+
+            electives.forEach(e => {
+                const card = document.createElement('div');
+                card.classList.add('unit-card');
+                card.innerHTML = `
+                <div class="unit-code">${e.code}</div>
+                <div class="unit-name">${e.name}</div>
+                <div class="unit-description">${e.description}</div>
+                `;
+
+                const isSelected = selectedElectives.some(s => s.code === e.code);
+                if (isSelected) card.classList.add('selected');
+
+                const maxElectives = 4 - selectedCores.length;
+                const cannotSelectMore = selectedElectives.length >= maxElectives && !isSelected;
+                const isDisabled = !e.available_this_sem || e.prereq_fulfilled === false || cannotSelectMore;
+
+                if (isDisabled && !isSelected) {
+                    card.classList.add('unavailable');
+                    const badge = document.createElement('div');
+                    badge.classList.add('unit-badge', 'badge-warning');
+                    if (!e.available_this_sem) {
+                        badge.textContent = 'Not Available';
+                    } else if (!e.prereq_fulfilled) {
+                        badge.textContent = 'Prereq Missing';
+                    } else {
+                        badge.textContent = 'Max Reached';
+                    }
+                    card.appendChild(badge);
+                }
+
+                // Add click handler to show unit details
+                card.onclick = (event) => {
+                    if (event.target.classList.contains('unit-toggle-btn')) {
+                        return;
+                    }
+                    showElectiveInfo(e.code);
+                };
+
+                // Add select/deselect button
+                const selectBtn = document.createElement('button');
+                selectBtn.classList.add('unit-toggle-btn');
+                selectBtn.textContent = isSelected ? 'Deselect' : 'Select';
+
+                selectBtn.onclick = (event) => {
+                    event.stopPropagation();
+
+                    if (isSelected) {
+                        toggleElectiveSelection(e, card);
+                        return;
+                    }
+
+                    if (isDisabled) {
+                        if (!e.available_this_sem) {
+                            showAlert('This unit is not available this semester', 'warning');
+                        } else if (!e.prereq_fulfilled) {
+                            showAlert('You have not met the prerequisites for this unit', 'warning');
+                        } else {
+                            showAlert(`You can only select ${maxElectives} electives`, 'warning');
+                        }
+                        return;
+                    }
+
+                    toggleElectiveSelection(e, card);
+                };
+
+                card.appendChild(selectBtn);
+                grid.appendChild(card);
+            });
+
+            document.getElementById('electiveCounter').innerText =
+                `Selected ${selectedElectives.length} / ${4 - selectedCores.length} electives`;
+        }
+
+        function toggleElectiveSelection(unit, card) {
+            /*  */
+            // check if the selected unit is in selected Elective, idx - 1 if not yet selected 
+            const idx = selectedElectives.findIndex(e => e.code === unit.code);
+            // if unit is selected, remove it from selected elective then remove on item from the idx
+            if (idx !== -1) {
+                selectedElectives.splice(idx, 1);
+                //if unit is not selected and user havent exceed elective limit, add the elective
+            } else if (selectedElectives.length < (4 - selectedCores.length)) {
+                selectedElectives.push(unit);
+            } else {
+                //else show warning message
+                showAlert(`You can select up to ${4 - selectedCores.length} electives`, 'warning');
+                return;
+            }
+            //update UI to show all elective or only current level elective
+            displayElectives(currentLevel === 0 ? allElectives : allElectives.filter(e => e.level == currentLevel));
+        }
+
+        function toggleCoreSelection(unitCode) {
+            /* 
+            If core unit is click
+            - if selected, mark as swap
+            - if swap, mark as selected again*/
+            toggleDeferredCore(unitCode);
+        }
+
+
+        function filterElectivesByLevel(level) {
+            /**
+             * Show elective by level or show them all at once
+             */
+            currentLevel = level;
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const filtered = level === 0 ? allElectives : allElectives.filter(e => e.level == level);
+            displayElectives(filtered);
+        }
+
+        function viewCurrentPlan() {
+            const planSection = document.getElementById('currentPlanDisplay');
+            document.getElementById('coreUnitsDisplay').classList.add('hidden');
+            document.getElementById('electivesDisplay').classList.add('hidden');
+            planSection.classList.remove('hidden');
+
+            const planList = document.getElementById('planList');
+            planList.innerHTML = '';
+
+            // Merge selected deferred cores with normal cores
+            const coreToShow = [
+                ...coreUnits.filter(u => selectedCores.includes(u.code)),
+                ...deferredCores
+                    .filter(d => selectedCores.includes(d.code))
+                    .map(d => ({ code: d.code, name: d.code })) // default name if not in coreUnits
+            ];
+
+            coreToShow.forEach(u => {
+                const div = document.createElement('div');
+                div.classList.add('plan-item');
+                div.innerHTML = `<span>${u.code} - ${u.name}</span><span>Core</span>`;
+                planList.appendChild(div);
+            });
+
+            // Selected electives
+            selectedElectives.forEach(e => {
+                const div = document.createElement('div');
+                div.classList.add('plan-item');
+                div.innerHTML = `<span>${e.code} - ${e.name}</span><span>Elective</span>`;
+                planList.appendChild(div);
+            });
+
+            // Deferred cores still deferred
+            const stillDeferred = deferredCores.filter(d => !selectedCores.includes(d.code));
+            stillDeferred.forEach(d => {
+                const div = document.createElement('div');
+                div.classList.add('plan-item');
+                div.style.borderLeft = '4px solid #f57c00';
+                div.innerHTML = `<span>${d.code} - ${d.code}</span><span>Deferred</span>`;
+                planList.appendChild(div);
+            });
+
+            // Total units
+            const totalUnits = selectedCores.length + selectedElectives.length;
+            const totalDiv = document.createElement('div');
+            totalDiv.style.cssText = 'margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;';
+            totalDiv.innerHTML = `<strong>Total units this semester:</strong> ${totalUnits} / 4`;
+            planList.appendChild(totalDiv);
+        }
+
+
+        function showRecommendationModal() {
+            /**
+             * Displays the elective recommendation modal
+             */
+            document.getElementById('recommendModal').classList.add('show');
+        }
+
+        function closeModal() {
+            /**
+             * Closes the elective recommendation modal
+             */
+            document.getElementById('recommendModal').classList.remove('show');
+        }
+
+        async function getRecommendations() {
+            /**
+             * Fetch and display personalized elective recommendation for the user 
+             * 
+             * It will dynamically display a list of recommended elective in the recommendation modal
+             */
+            const level = parseInt(document.getElementById('recommendLevel').value);
+            const interest = document.getElementById('userInterest').value;
+
+            if (!interest) {
+                showAlert('Please enter your interest.', 'warning');
+                return;
+            }
+
+            const payload = {
+                username: userData.username,
+                intake: userData.intake,
+                stream: userData.stream,
+                year: userData.year,
+                semester: userData.semester,
+                level: level,
+                interest: interest,
+                already_chosen: selectedElectives.map(e => e.code)
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/recommend-electives`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                const resultsDiv = document.getElementById('recommendResults');
+                resultsDiv.innerHTML = '<h3>Recommended Units:</h3>';
+
+                if (data.success) {
+                    data.recommendations.forEach(u => {
+                        const div = document.createElement('div');
+                        div.classList.add('plan-item');
+                        div.innerHTML = `<span>${u.code} - ${u.name}</span>`;
+                        resultsDiv.appendChild(div);
+                    });
+                } else {
+                    showAlert(data.error || 'Failed to get recommendations', 'error');
+                }
+            } catch {
+                showAlert('Failed to get recommendations.', 'error');
+            }
+        }
+
+        async function getUnitDetails(unitCode) {
+            /* 
+            Show unit detail */
+            try {
+                const res = await fetch(`${API_URL}/api/core-unit-info`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: userData.username, unit_code: unitCode })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    return data.unit; // { code, name, description, semesters, prereq_fulfilled, etc }
+                } else {
+                    console.warn(`Unit ${unitCode} not found:`, data.error);
+                    return { code: unitCode, name: 'Unknown Unit', from_semester: 'Previous', prereq_fulfilled: true };
+                }
+            } catch (err) {
+                console.error("Failed to fetch unit details", err);
+                return { code: unitCode, name: 'Unknown Unit', from_semester: 'Previous', prereq_fulfilled: true };
+            }
+        }
+
+
+        async function savePlan() {
+            /* 
+            save info by sending all the information back to backend 
+             */
+            // look at core, see if which havent been selected
+            // treat as core user want to swap
+            const deferredThisSemester = coreUnits
+                .map(u => u.code)
+                .filter(code => !selectedCores.includes(code));
+
+            //combiene all core and swap core into a single array 
+            const selectedCoreObjects = [
+                ...coreUnits.filter(u => selectedCores.includes(u.code)),
+                ...deferredCores.filter(d => selectedCores.includes(d.code))
+            ];
+
+            //all the information backend nned to save the plan
+            const payload = {
+                username: userData.username,
+                year: userData.year,
+                semester: userData.semester,
+                core_units: selectedCoreObjects,
+                electives: selectedElectives,
+                deferred_cores: deferredThisSemester,
+                stream: userData.stream,
+                intake: userData.intake
+            };
+
+            //send the information back to backend and show message indicating sucess or error
+            try {
+                const res = await fetch(`${API_URL}/api/save-plan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    let message = 'Plan saved successfully!';
+                    if (deferredThisSemester.length > 0) {
+                        message += ` (Deferred: ${deferredThisSemester.join(', ')})`;
+                    }
+                    showAlert(message, 'success');
+                } else {
+                    showAlert(data.error || 'Failed to save plan', 'error');
+                }
+            } catch {
+                showAlert('Error saving plan.', 'error');
+            }
+        }
+
+        // Run auto-fill as soon as the page is loaded
+        window.addEventListener('DOMContentLoaded', autoFillPlannerFromCookies);
+
+        if (!document.getElementById('chatButton')) {
+            const chatBtn = document.createElement('div');
+            chatBtn.className = 'chat-button';
+            chatBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>';
+            chatBtn.style.cssText = 'position:fixed;bottom:30px;right:30px;width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(102,126,234,0.4);z-index:1000';
+            chatBtn.onclick = () => window.open('/chat', 'AI Chat', 'width=400,height=700');
+            document.body.appendChild(chatBtn);
+        }
+    </script>
+</body>
+
+</html>
